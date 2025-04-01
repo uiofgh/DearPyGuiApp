@@ -7,6 +7,7 @@ def save_callback():
 dpg.create_context()
 
 with dpg.font_registry():
+    # 设置中文字体
     with dpg.font("font/msyh.ttf", 20) as font1:
 
         # add the default font range
