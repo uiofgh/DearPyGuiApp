@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 import dearpygui.dearpygui as dpg
+import os
+
+fileDir = os.path.dirname(__file__)
 
 def save_callback():
     print("Save Clicked")
@@ -8,7 +11,7 @@ dpg.create_context()
 
 with dpg.font_registry():
     # 设置中文字体
-    with dpg.font("font/msyh.ttf", 20) as font1:
+    with dpg.font(os.path.join(fileDir, "font", "msyh.ttf"), 20) as font1:
 
         # add the default font range
         dpg.add_font_range_hint(dpg.mvFontRangeHint_Default)
