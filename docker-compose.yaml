@@ -1,0 +1,13 @@
+services:
+  midware:
+    image: ${CROSSBAR_IMAGE}
+    ports:
+      - 8093:8080
+    user: root
+    volumes:
+      - ./crossbar:/mynode
+    entrypoint:
+      - crossbar
+      - start
+      - --cbdir
+      - /mynode/.crossbar

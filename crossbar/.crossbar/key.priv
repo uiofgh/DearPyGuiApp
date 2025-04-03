@@ -4,8 +4,5 @@ creator: Administrator@cuijieming
 created-at: 2025-03-31T16:33:04.306Z
 machine-id: cuijieming
 node-authid: cuijieming
-node-cluster-ip: 127.0.0.1
 public-key-ed25519: d9a64cc027089a56314c74d5149cc4955254b0dbd2e0c1b61168f4bf19bb60ce
-public-adr-eth: 0x7C5d32755c17dC755311DcE553d8652E91D703F4
 private-key-ed25519: 04494d090c6970cfeddcb8d5f27d40eba7857806fb45879539d464f4a73ac7c2
-private-key-eth: d025fa56fbfb674f2187f4edbffe60adc493fd3bac2c6a2ddfc3984a67dd46a9
