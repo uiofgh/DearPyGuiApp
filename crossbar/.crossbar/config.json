@@ -8,7 +8,32 @@
             "type": "router",
             "realms": [
                 {
-                    "name": "crossbardemo",
+                    "name": "release",
+                    "roles": [
+                        {
+                            "name": "anonymous",
+                            "permissions": [
+                                {
+                                    "uri": "",
+                                    "match": "prefix",
+                                    "allow": {
+                                        "call": true,
+                                        "register": true,
+                                        "publish": true,
+                                        "subscribe": true
+                                    },
+                                    "disclose": {
+                                        "caller": false,
+                                        "publisher": false
+                                    },
+                                    "cache": true
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "beta",
                     "roles": [
                         {
                             "name": "anonymous",
@@ -44,7 +69,7 @@
                     "options": {
                         "max_message_size": 1048576
                     },
-                    "serializers": ["cbor", "msgpack", "json"]
+                    "serializers": ["json"]
                 },
                 {
                     "type": "web",
@@ -64,7 +89,7 @@
                         "ws": {
                             "type": "websocket",
                             "serializers": [
-                                "cbor", "msgpack", "json"
+                                "json"
                             ],
                             "options": {
                                 "allowed_origins": ["*"],

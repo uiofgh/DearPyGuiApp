@@ -25,12 +25,18 @@
 ###############################################################################
 
 import asyncio
-from os import environ
-from autobahn.wamp.types import CallResult
-from autobahn.asyncio.wamp import ApplicationSession, ApplicationRunner
+import os
+import sys
+
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+
+from autobahn.asyncio.component import Component, run
+from autobahn.asyncio.wamp import ApplicationSession
+
+from common.util import startComponent
 
 
-class Component(ApplicationSession):
+class MyApplicationSession(ApplicationSession):
     """
     Application component that calls procedures which
     produce complex results and showing how to access those.
@@ -38,10 +44,10 @@ class Component(ApplicationSession):
 
     async def onJoin(self, details):
 
-        res = await self.call('com.myapp.add_complex', 2, 3, 4, 5)
-        print("Result: {} + {}i".format(res.kwresults['c'], res.kwresults['ci']))
+        res = await self.call("com.myapp.add_complex", 2, 3, 4, 5)
+        print("Result: {} + {}i".format(res.kwresults["c"], res.kwresults["ci"]))
 
-        res = await self.call('com.myapp.split_name', 'Homer Simpson')
+        res = await self.call("com.myapp.split_name", "Homer Simpson")
         print("Forname: {}, Surname: {}".format(res.results[0], res.results[1]))
 
         self.leave()
@@ -50,8 +56,5 @@ class Component(ApplicationSession):
         asyncio.get_event_loop().stop()
 
 
-if __name__ == '__main__':
-    url = environ.get("AUTOBAHN_DEMO_ROUTER", "ws://127.0.0.1:8093/ws")
-    realm = "crossbardemo"
-    runner = ApplicationRunner(url, realm)
-    runner.run(Component)
+if __name__ == "__main__":
+    startComponent(MyApplicationSession)
