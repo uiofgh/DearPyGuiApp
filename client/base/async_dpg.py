@@ -2,8 +2,8 @@ import asyncio
 import inspect
 import random
 import threading
+import sys
 import time
-from ctypes import windll
 
 import dearpygui.dearpygui as dpg
 from screeninfo import get_monitors
@@ -15,6 +15,7 @@ DpgInst = None
 
 
 def setTitle(old_title, new_title):
+    if sys.platform != "win32": return
     """循环检测窗口是否生成，生成之后修改窗口标题"""
     while True:
         hwnd = windll.user32.FindWindowW(None, old_title)
