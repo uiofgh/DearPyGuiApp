@@ -11,11 +11,13 @@ case "$arch" in
   *)         arch="unknown" ;;
 esac
 
-# Check if architecture-specific env file exists
-env_file=".env.${arch}"
-if [ ! -f "$env_file" ]; then
-  echo "Error: Environment file $env_file not found"
-  exit 1
+echo "Set arch to $arch"
+
+# specify podman image
+if [ "$arch" = "arm64" ]; then
+  export CROSSBAR_IMAGE=crossbario/crossbar-aarch64
+else
+  export CROSSBAR_IMAGE=crossbario/crossbar
 fi
 
 # Determine which compose command to use
@@ -24,13 +26,11 @@ COMPOSE_CMD="podman-compose"  # Default to podman-compose
 # Check if docker-compose exists and is executable
 if command -v docker-compose &> /dev/null; then
     COMPOSE_CMD="docker-compose"
-    echo "Using docker-compose"
-else
-    echo "docker-compose not found, using podman-compose"
 fi
+echo "Using $COMPOSE_CMD"
 # Run podman-compose with the architecture-specific env file
-echo "Stoping containers with $env_file..."
-$COMPOSE_CMD --env-file "$env_file" down
-echo "Starting containers with $env_file..."
-$COMPOSE_CMD --env-file "$env_file" up -d midware
+echo "Stopping containers"
+$COMPOSE_CMD down midware
+echo "Starting containers"
+$COMPOSE_CMD up -d midware
 echo "Start finished"

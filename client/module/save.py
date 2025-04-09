@@ -1,12 +1,12 @@
 import toml
 
-CONFIG_PATH = "config.toml"
+SAVE_PATH = "save.toml"
 
 
-class Config:
+class Save:
     def __init__(self):
         try:
-            self.data = toml.load(CONFIG_PATH)
+            self.data = toml.load(SAVE_PATH)
         except:
             self.data = {}
 
@@ -15,15 +15,15 @@ class Config:
 
     def set(self, key: str, value: any):
         self.data[key] = value
-        toml.dump(self.data, CONFIG_PATH)
+        toml.dump(self.data, SAVE_PATH)
 
 
-gConfig = Config()
+gSave = Save()
 
 
 def get(key: str, default: any = None):
-    return gConfig.get(key, default)
+    return gSave.get(key, default)
 
 
 def set(key: str, value: any):
-    return gConfig.set(key, value)
+    return gSave.set(key, value)

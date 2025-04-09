@@ -1,88 +1,13 @@
-import asyncio
-import inspect
-import random
-import threading
-import sys
-import time
+from client.api import *
 
-import dearpygui.dearpygui as dpg
-from screeninfo import get_monitors
-
-from client.base.extend import size
-
-MainLoop = asyncio.get_event_loop()
-DpgInst = None
-
-
-def setTitle(old_title, new_title):
-    if sys.platform != "win32": return
-    """循环检测窗口是否生成，生成之后修改窗口标题"""
-    while True:
-        hwnd = windll.user32.FindWindowW(None, old_title)
-        if hwnd != 0:
-            windll.user32.SetWindowTextW(hwnd, new_title)
-            break
-
-
-def dpgStartAsync(title="", width=100, height=100, primary_window=None):
-    xPos, yPos = size(1000), size(500)
-    for m in get_monitors():
-        if m.is_primary:
-            xPos = (m.width - width) // 2
-            yPos = (m.height - height) // 2
-            break
-
-    RANDOM_TITLE = str(random.random())
-    dpg.create_viewport(
-        title=RANDOM_TITLE,
-        min_width=width,
-        min_height=height,
-        width=height,
-        height=height,
-        x_pos=xPos,
-        y_pos=yPos,
-    )
-    dpg.setup_dearpygui()
-    if primary_window:
-        dpg.set_primary_window(primary_window, True)
-    dpg.show_viewport()
-    threading.Thread(target=setTitle, args=(RANDOM_TITLE, title)).start()
-
-    global DpgInst
-    DpgInst = DearPyGuiAsync(MainLoop)
-    DpgInst.run()
-    dpg.destroy_context()
-
-
-def dpgStop():
-    dpg.stop_dearpygui()
-
-
-def asyncCallback(method):
-    def decorator(*args):
-        arg_slice = args[: len(inspect.signature(method).parameters)]
-        asyncio.run_coroutine_threadsafe(method(*arg_slice), MainLoop)
-
-    return decorator
-
-
-async def _sleep(seconds: float):
-    """An asyncio sleep.
-
-    On Windows this achieves a better granularity than asyncio.sleep
-
-    Args:
-        seconds (float): Seconds to sleep for.
-
-    """
-    await asyncio.get_running_loop().run_in_executor(None, time.sleep, seconds)
+gDpgAsync = None
 
 
 class DearPyGuiAsync:
     _callback_task: asyncio.Task
 
     def __init__(self, loop=None):
-        self.loop = loop or asyncio.get_event_loop()
+        self.loop = loop
 
     async def setup(self):
         """
@@ -133,7 +58,7 @@ class DearPyGuiAsync:
         while dpg.is_dearpygui_running():
             asyncio.create_task(self.run_callbacks(dpg.get_callback_queue()))
             dpg.render_dearpygui_frame()
-            await _sleep(0.0095)
+            await sleep(0.0095)
         await self.teardown()
 
     async def start(self):
@@ -165,3 +90,73 @@ class DearPyGuiAsync:
 
         """
         self.loop.run_until_complete(self.__start())
+
+
+def setTitle(oldTitle, newTitle):
+    if sys.platform != "win32":
+        return
+    """循环检测窗口是否生成，生成之后修改窗口标题"""
+    from ctypes import windll
+
+    while True:
+        hwnd = windll.user32.FindWindowW(None, oldTitle)
+        if hwnd != 0:
+            windll.user32.SetWindowTextW(hwnd, newTitle)
+            break
+
+
+def setFont():
+    FONT_PATH = {
+        "win32": "C:\Windows\Fonts\msjh.ttc",
+        "darwin": "/System/Library/Fonts/STHeiti Medium.ttc",
+    }
+
+    system = sys.platform
+    fontPath = FONT_PATH[system]
+    with dpg.font_registry():
+        # 设置中文字体
+        with dpg.font(fontPath, 20 * CONFIG.get("dpiMultiplier", 1)) as font:
+            dpg.add_font_range_hint(dpg.mvFontRangeHint_Chinese_Full)
+            dpg.bind_font(font)
+
+
+def initViewport(title="", width=100, height=100, primary_window=None):
+    setFont()
+    from screeninfo import get_monitors
+
+    xPos, yPos = size(1000), size(500)
+    for m in get_monitors():
+        if m.is_primary:
+            xPos = (m.width - width) // 2
+            yPos = (m.height - height) // 2
+            break
+
+    RANDOM_TITLE = str(random.random())
+    dpg.create_viewport(
+        title=RANDOM_TITLE,
+        min_width=width,
+        min_height=height,
+        width=height,
+        height=height,
+        x_pos=xPos,
+        y_pos=yPos,
+    )
+    dpg.setup_dearpygui()
+    if primary_window:
+        dpg.set_primary_window(primary_window, True)
+    dpg.show_viewport()
+    threading.Thread(target=setTitle, args=(RANDOM_TITLE, title)).start()
+
+
+def startEventLoop():
+    """
+    阻塞启动loop
+    """
+    global gDpgAsync
+    gDpgAsync = DearPyGuiAsync(gEventLoop)
+    gDpgAsync.run()
+    dpg.destroy_context()
+
+
+def exit():
+    dpg.stop_dearpygui()

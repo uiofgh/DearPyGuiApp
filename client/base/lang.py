@@ -1,6 +1,7 @@
 zhCN = {
-    "checking_update": "检查更新中...",
-    "updating": "更新中...",
+    "checking_patch": "检查更新中...",
+    "patch_downloading": "更新中...",
+    "patch_extracting": "解压中...",
     "main_window_title": "主窗口标题",
     "update_window_title": "更新窗口标题",
     "confirm": "确认",
